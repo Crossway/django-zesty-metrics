@@ -19,23 +19,14 @@ Install
 To install simply execute `python setup.py install`.
 
 
-Usage
-=====
+Configuration
+=============
 
-Just add `metrics` to the `INSTALLED_APPS` and add
-`metrics.middleware.TimingMiddleware` to `MIDDLEWARE_CLASSES`
+In
 
-
-Advanced Usage
---------------
-
-    >>> def some_view(request):
-    ...     with request.statsd.timer('something_to_time'):
-    ...         # do something here
-    ...         pass
-    >>>
-    >>> def some_view(request):
-    ...     start = time.time()
-    ...     # do something here
-    ...     request.statsd.timing('something_to_time', time.time() - start)
-
+* Just add `metrics` to the `INSTALLED_APPS`
+* Add `metrics.middleware.MetricsMiddleware` to `MIDDLEWARE_CLASSES`
+* Set the following, as needed:
+  - `STATSD_HOST`, default `localhost`
+  - `STATSD_PORT`, default `8125`
+  - `STATSD_PREFIX`, default `None`
