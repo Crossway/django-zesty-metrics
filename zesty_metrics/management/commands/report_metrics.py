@@ -25,7 +25,9 @@ class Command(NoArgsCommand):
         # Client doesn't support batch_len
         statsd = statsd.statsd
 
-    def track(self, tracker, kind, func):
+    def _track(self, tracker, kind, func):
+        """Track items on a tracker. Internal helper method.
+        """
         for attr, name in getattr(tracker, kind, {}).iteritems():
             try:
                 value = getattr(tracker, attr)
@@ -37,7 +39,9 @@ class Command(NoArgsCommand):
                 logging.info("%s::%s: %s", kind, name, value)
                 func(name, value)
 
-    def import_tracker(self, path):
+    def _import_tracker(self, path):
+        """"Import and instantiate a tracker from the given dotted path.
+        """
         try:
             module, classname = path.rsplit('.', 1)
         except ValueError:
@@ -53,11 +57,11 @@ class Command(NoArgsCommand):
         return klass()
 
     def handle_noargs(self, **options):
-        trackers = [self.import_tracker(tp) for tp in conf.TRACKING_CLASSES]
+        trackers = [self._import_tracker(tp) for tp in conf.TRACKING_CLASSES]
 
         for tracker in trackers:
-            self.track(tracker, 'gauges', self.statsd.gauge)
-            self.track(tracker, 'counters', self.statsd.incr)
+            self._track(tracker, 'gauges', self.statsd.gauge)
+            self._track(tracker, 'counters', self.statsd.incr)
 
         try:
             self.statsd.flush()
