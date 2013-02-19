@@ -37,13 +37,13 @@ Configuration
 
 In your Django settings:
 
-* Add `metrics` to the `INSTALLED_APPS`
-* Add `metrics.middleware.MetricsMiddleware` to `MIDDLEWARE_CLASSES`
+* Add ``metrics`` to the ``INSTALLED_APPS``
+* Add ``metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
 * Set the following, as needed:
-  - `STATSD_HOST`, default `localhost`
-  - `STATSD_PORT`, default `8125`
-  - `STATSD_PREFIX`, default `None`
-* Run `syncdb` (or `migrate` if you use South).
+  - ``STATSD_HOST``, default ``localhost``
+  - ``STATSD_PORT``, default ``8125``
+  - ``STATSD_PREFIX``, default ``None``
+* Run ``syncdb`` (or ``migrate`` if you use South).
 
 
 Acknowledgements
