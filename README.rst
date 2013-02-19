@@ -37,15 +37,15 @@ Configuration
 
 In your Django settings:
 
-* Add ``metrics`` to the ``INSTALLED_APPS``
-* Add ``metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
+* Add ``zesty_metrics`` to the ``INSTALLED_APPS``
+* Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
 * Set the following, as needed:
   - ``STATSD_HOST``, default ``localhost``
   - ``STATSD_PORT``, default ``8125``
   - ``STATSD_PREFIX``, default ``None``
 * Run ``syncdb`` (or ``migrate`` if you use South).
 
-Set up a cron job to run the ``report_account_stats` django-admin.py
+Set up a cron job to run the ``report_account_stats`` django-admin.py
 command regularly. At least once a day, but you can update it as often
 as you like.
 
