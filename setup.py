@@ -9,15 +9,15 @@ else:
 version = '0.1'
 
 setup(
-    name='crossway-metrics',
+    name='django-zesty-metrics',
     version=version,
     author='David Eyk',
     author_email='deyk@crossway.org',
     license='BSD',
-    packages=['metrics'],
-    short_description="Easy stats collection for Django.",
+    packages=['zesty_metrics'],
+    short_description="Zesty metrics collection and Statsd integration for Django.",
     long_description=long_description,
-    install_requires=['statsd>=1.0'],
+    install_requires=['statsd>=1.0', 'Django>=1.4'],
     classifiers=[
         'License :: OSI Approved :: BSD License',
     ],
