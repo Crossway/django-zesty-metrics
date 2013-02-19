@@ -4,10 +4,10 @@
 import logging
 
 from django.core.management.base import NoArgsCommand
-from django.conf import settings
-from django.utils.module_loading import import_by_path
+from django.core import exceptions
+from django.utils.importlib import import_module
 
-from statsd import statsd
+import statsd
 
 from zesty_metrics import conf
 
@@ -37,13 +37,27 @@ class Command(NoArgsCommand):
                 logging.info("%s::%s: %s", kind, name, value)
                 func(name, value)
 
+    def import_tracker(self, path):
+        try:
+            module, classname = path.rsplit('.', 1)
+        except ValueError:
+            raise exceptions.ImproperlyConfigured('%s isn\'t a tracker module' % path)
+        try:
+            mod = import_module(module)
+        except ImportError, e:
+            raise exceptions.ImproperlyConfigured('Error importing tracker %s: "%s"' % (module, e))
+        try:
+            klass = getattr(mod, classname)
+        except AttributeError:
+            raise exceptions.ImproperlyConfigured('Tracker module "%s" does not define a "%s" class' % (module, classname))
+        return klass()
+
     def handle_noargs(self, **options):
-        trackers = [import_by_path(tracker) for tracker in conf.TRACKING_CLASSES]
+        trackers = [self.import_tracker(tp) for tp in conf.TRACKING_CLASSES]
 
         for tracker in trackers:
-            tracker = tracker()
-            self.track(tracker, 'gauges', statsd.gauge)
-            self.track(tracker, 'counters', statsd.incr)
+            self.track(tracker, 'gauges', self.statsd.gauge)
+            self.track(tracker, 'counters', self.statsd.incr)
 
         try:
             self.statsd.flush()

@@ -23,7 +23,7 @@ def cache_metric(func_or_expiration):
                 return 42
     """
     def decorator(func):
-        if isinstance(int, func_or_expiration):
+        if isinstance(func_or_expiration, int):
             expiration = func_or_expiration
         else:
             expiration = 5 * 60  # 5 minutes
