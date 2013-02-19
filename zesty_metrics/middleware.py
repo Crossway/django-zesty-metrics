@@ -37,14 +37,18 @@ class MetricsMiddleware(object):
             self.scope.client = statsd.statsd
 
     def process_request(self, request):
-        self.start_timing(request)
-        self.handle_last_seen_data(request)
+        if conf.TIME_RESPONSES:
+            self.start_timing(request)
+        if conf.TRACK_USER_ACTIVITY:
+            self.update_last_seen_data(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        self.gather_view_data(request, view_func)
+        if conf.TIME_RESPONSES:
+            self.gather_view_data(request, view_func)
 
     def process_response(self, request, response):
-        self.stop_timing(request)
+        if conf.TIME_RESPONSES:
+            self.stop_timing(request)
         return response
 
     def start_timing(self, request):
@@ -65,8 +69,10 @@ class MetricsMiddleware(object):
             name = '%s.%s' % (name, view_func.__name__)
         elif hasattr(view_func, '__class__'):
             name = '%s.%s' % (name, view_func.__class__.__name__)
+        method = request.method.lower()
         if request.is_ajax():
-            name += '_ajax'
+            method += '_ajax'
+        name = '%s.%s' % (name, method)
 
         self.scope.view_name = "view." + name
 
@@ -79,10 +85,14 @@ class MetricsMiddleware(object):
             self.scope.view_name,
             time_elapsed,
             conf.TIMING_SAMPLE_RATE)
-        logging.debug("Processed %s.%s in %sms",
+        logging.info("Processed %s.%s in %sms",
                       conf.PREFIX, self.scope.view_name, time_elapsed)
-        client.flush()
-        logging.debug("Flushed stats to %s:%s %s",
+        try:
+            client.flush()
+        except AttributeError:
+            # Client doesn't flush, data already sent.
+            pass
+        logging.info("Flushed stats to %s:%s %s",
                       conf.HOST, conf.PORT, client._addr)
 
     # Other visit data

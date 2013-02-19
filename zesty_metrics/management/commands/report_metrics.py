@@ -45,4 +45,8 @@ class Command(NoArgsCommand):
             self.track(tracker, 'gauges', statsd.gauge)
             self.track(tracker, 'counters', statsd.incr)
 
-        self.statsd.flush()
+        try:
+            self.statsd.flush()
+        except AttributeError:
+            # Client doesn't flush, data already sent.
+            pass
