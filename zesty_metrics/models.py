@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""metrics.models -- user-metrics-related models.
+"""zesty_metrics.models -- user-metrics-related models.
 """
 import datetime
 

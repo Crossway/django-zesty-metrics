@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""metrics.middleware -- Timing middleware for StatsD metrics.
+"""zesty_metrics.middleware -- Timing middleware for StatsD metrics.
 """
 from __future__ import with_statement
 import datetime

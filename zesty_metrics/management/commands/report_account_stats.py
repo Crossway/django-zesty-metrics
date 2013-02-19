@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""metrics.management.commands.report_account_stats -- script for reporting account stats.
+"""zesty_metrics.management.commands.report_account_stats -- script for reporting account stats.
 """
 import logging
 

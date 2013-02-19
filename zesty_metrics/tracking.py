@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""metrics.tracking -- tracking metrics for user accounts.
+"""zesty_metrics.tracking -- tracking metrics for user accounts.
 """
 import datetime as dt
 

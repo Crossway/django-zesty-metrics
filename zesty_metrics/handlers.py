@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""metrics.handlers -- user-metrics-related signal handlers.
+"""zesty_metrics.handlers -- user-metrics-related signal handlers.
 """
 from django.contrib.auth.models import User
 from django.dispatch import receiver
