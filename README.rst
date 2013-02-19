@@ -45,10 +45,15 @@ In your Django settings:
   - ``STATSD_PREFIX``, default ``None``
 * Run ``syncdb`` (or ``migrate`` if you use South).
 
+Set up a cron job to run the ``report_account_stats` django-admin.py
+command regularly. At least once a day, but you can update it as often
+as you like.
+
 
 Acknowledgements
 ================
 
-Lots of ideas were taken from `django-statsd`_
+Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 
 .. _django-statsd: https://github.com/WoLpH/django-statsd
+.. _django-munin: https://github.com/ccnmtl/django-munin
