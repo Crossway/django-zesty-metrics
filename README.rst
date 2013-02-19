@@ -43,11 +43,13 @@ In your Django settings:
   - ``STATSD_HOST``, default ``localhost``
   - ``STATSD_PORT``, default ``8125``
   - ``STATSD_PREFIX``, default ``None``
+  - ``ZESTY_TRACKING_CLASSES``, default ``('zesty_metrics.tracking.UserAccounts',)``
 * Run ``syncdb`` (or ``migrate`` if you use South).
 
-Set up a cron job to run the ``report_account_stats`` django-admin.py
+Set up a cron job to run the ``report_metrics`` django-admin.py
 command regularly. At least once a day, but you can update it as often
-as you like.
+as you want. This command reports metrics from the trackers that you
+configure in ``ZESTY_TRACKING_CLASSES``.
 
 
 Acknowledgements
