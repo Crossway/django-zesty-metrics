@@ -2,16 +2,14 @@
 """zesty_metrics.middleware -- Timing middleware for StatsD metrics.
 """
 from __future__ import with_statement
-import datetime
 import time
 import threading
 import logging
 
-from django.conf import settings
-
 import statsd
 
 from . import models
+from . import conf
 
 logger = logging.getLogger('metrics')
 
@@ -26,18 +24,17 @@ class MetricsMiddleware(object):
     """
     scope = threading.local()
 
-    HOST = getattr(settings, 'STATSD_HOST', 'localhost')
-    PORT = getattr(settings, 'STATSD_PORT', 8125)
-    PREFIX = getattr(settings, 'STATSD_PREFIX', None)
-    TIMING_SAMPLE_RATE = getattr(settings, 'STATSD_TIMING_SAMPLE_RATE', 1)
-
     def __init__(self):
-        self.scope.client = statsd.StatsClient(
-            host = self.HOST,
-            port = self.PORT,
-            prefix = self.PREFIX,
-            batch_len = 100,
-        )
+        try:
+            self.scope.client = statsd.StatsClient(
+                host = conf.HOST,
+                port = conf.PORT,
+                prefix = conf.PREFIX,
+                batch_len = 1000,
+            )
+        except TypeError:
+            # Client doesn't support batch_len, use the default
+            self.scope.client = statsd.statsd
 
     def process_request(self, request):
         self.start_timing(request)
@@ -81,12 +78,12 @@ class MetricsMiddleware(object):
         client.timing(
             self.scope.view_name,
             time_elapsed,
-            self.TIMING_SAMPLE_RATE)
+            conf.TIMING_SAMPLE_RATE)
         logging.debug("Processed %s.%s in %sms",
-                      self.PREFIX, self.scope.view_name, time_elapsed)
+                      conf.PREFIX, self.scope.view_name, time_elapsed)
         client.flush()
         logging.debug("Flushed stats to %s:%s %s",
-                      self.HOST, self.PORT, client._addr)
+                      conf.HOST, conf.PORT, client._addr)
 
     # Other visit data
     def update_last_seen_data(self, request):
