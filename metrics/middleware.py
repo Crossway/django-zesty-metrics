@@ -95,23 +95,7 @@ class MetricsMiddleware(object):
         user = request.user
         if user.is_authenticated():
             try:
-                up = user.get_profile()
+                data = models.LastSeenData.objects.get(user=user)
             except models.SiteProfile.DoesNotExist:
-                up = models.SiteProfile(user=user)
-
-            this_month = datetime.datetime.now() - datetime.date.resolution * 30
-            last_month = datetime.datetime.now() - datetime.date.resolution * 60
-
-            # We want to know if the user has been active in the previous month (> 30 days).
-            if up.active_last_month is None or up.active_last_month <= last_month:
-                up.active_last_month = up.active_this_month
-
-            # We want to know the user's most recent time of activity.
-            up.last_seen = datetime.datetime.now()
-
-            # We want to know if the user has been active in the past month (< 30 days).
-            if up.active_this_month is None or up.active_this_month <= this_month:
-                up.active_this_month = up.last_seen
-
-            up.save()
-        return None
+                data = models.LastSeenData(user=user)
+            data.update(request)
