@@ -83,21 +83,23 @@ class MetricsMiddleware(object):
     def stop_timing(self, request):
         """Stop performance timing.
         """
-        time_elapsed = time.time() - self.scope.request_start
-        client = self.scope.client
-        client.timing(
-            self.scope.view_name,
-            time_elapsed,
-            conf.TIMING_SAMPLE_RATE)
-        logging.info("Processed %s.%s in %sms",
-                      conf.PREFIX, self.scope.view_name, time_elapsed)
-        try:
-            client.flush()
-        except AttributeError:
-            # Client doesn't flush, data already sent.
-            pass
-        logging.info("Flushed stats to %s:%s %s",
-                      conf.HOST, conf.PORT, client._addr)
+        now = time.time()
+        time_elapsed = now - getattr(self.scope, 'request_start', now)
+        if hasattr(self.scope, 'client'):
+            client = self.scope.client
+            client.timing(
+                self.scope.view_name,
+                time_elapsed,
+                conf.TIMING_SAMPLE_RATE)
+            logging.info("Processed %s.%s in %sms",
+                          conf.PREFIX, self.scope.view_name, time_elapsed)
+            try:
+                client.flush()
+            except AttributeError:
+                # Client doesn't flush, data already sent.
+                pass
+            logging.info("Flushed stats to %s:%s %s",
+                          conf.HOST, conf.PORT, client._addr)
 
     # Other visit data
     def update_last_seen_data(self, request):
