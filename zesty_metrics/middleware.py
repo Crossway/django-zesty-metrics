@@ -88,7 +88,7 @@ class MetricsMiddleware(object):
         if hasattr(self.scope, 'client'):
             client = self.scope.client
             client.timing(
-                self.scope.view_name,
+                getattr(self.scope, 'view_name', 'UNKNOWN'),
                 time_elapsed,
                 conf.TIMING_SAMPLE_RATE)
             logging.info("Processed %s.%s in %sms",
