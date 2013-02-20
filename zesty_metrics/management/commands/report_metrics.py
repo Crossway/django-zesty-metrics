@@ -20,10 +20,15 @@ class Command(NoArgsCommand):
             host = conf.HOST,
             port = conf.PORT,
             prefix = conf.PREFIX,
-            batch_len = 1000)
+            batch_len = 1000,
+            )
     except TypeError:
         # Client doesn't support batch_len
-        statsd = statsd.statsd
+        statsd = statsd.StatsClient(
+            host = conf.HOST,
+            port = conf.PORT,
+            prefix = conf.PREFIX,
+            )
 
     def _track(self, tracker, kind, func):
         """Track items on a tracker. Internal helper method.

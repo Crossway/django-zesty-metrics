@@ -31,10 +31,14 @@ class MetricsMiddleware(object):
                 port = conf.PORT,
                 prefix = conf.PREFIX,
                 batch_len = 1000,
-            )
+                )
         except TypeError:
             # Client doesn't support batch_len, use the default
-            self.scope.client = statsd.statsd
+            self.scope.client = statsd.StatsClient(
+                host = conf.HOST,
+                port = conf.PORT,
+                prefix = conf.PREFIX,
+                )
 
     def process_request(self, request):
         if conf.TIME_RESPONSES:
