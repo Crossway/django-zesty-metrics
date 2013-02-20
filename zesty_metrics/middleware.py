@@ -92,7 +92,7 @@ class MetricsMiddleware(object):
                 view_name,
                 time_elapsed,
                 conf.TIMING_SAMPLE_RATE)
-            logging.info("Processed %s.%s in %sms",
+            logging.info("Processed %s.%s in %ss",
                           conf.PREFIX, view_name, time_elapsed)
             try:
                 client.flush()
