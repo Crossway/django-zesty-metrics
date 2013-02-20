@@ -87,12 +87,13 @@ class MetricsMiddleware(object):
         time_elapsed = now - getattr(self.scope, 'request_start', now)
         if hasattr(self.scope, 'client'):
             client = self.scope.client
+            view_name = getattr(self.scope, 'view_name', 'UNKNOWN')
             client.timing(
-                getattr(self.scope, 'view_name', 'UNKNOWN'),
+                view_name,
                 time_elapsed,
                 conf.TIMING_SAMPLE_RATE)
             logging.info("Processed %s.%s in %sms",
-                          conf.PREFIX, self.scope.view_name, time_elapsed)
+                          conf.PREFIX, view_name, time_elapsed)
             try:
                 client.flush()
             except AttributeError:
