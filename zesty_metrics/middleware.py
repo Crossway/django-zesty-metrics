@@ -46,6 +46,17 @@ class MetricsMiddleware(object):
         if conf.TRACK_USER_ACTIVITY:
             self.update_last_seen_data(request)
 
+    def process_exception(self, request, exception):
+        try:
+            if hasattr(self.scope, 'client'):
+                self.scope.client.incr('view.exception')
+                view_name = '%s.%s' % (
+                    getattr(self.scope, 'view_name', 'UNKNOWN'),
+                    'exception')
+                self.scope.client.incr(view_name)
+        except:
+            logging.exception('Exception occurred while logging to statsd.')
+
     def process_view(self, request, view_func, view_args, view_kwargs):
         if conf.TIME_RESPONSES:
             self.gather_view_data(request, view_func)
