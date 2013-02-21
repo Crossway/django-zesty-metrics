@@ -49,10 +49,9 @@ class MetricsMiddleware(object):
     def process_exception(self, request, exception):
         try:
             if hasattr(self.scope, 'client'):
-                self.scope.client.incr('view.exception')
-                view_name = '%s.%s' % (
-                    getattr(self.scope, 'view_name', 'UNKNOWN'),
-                    'exception')
+                self.scope.client.incr('view.exceptions')
+                view_name = (getattr(self.scope, 'view_name', 'UNKNOWN') +
+                             '.exceptions')
                 self.scope.client.incr(view_name)
         except:
             logging.exception('Exception occurred while logging to statsd.')
