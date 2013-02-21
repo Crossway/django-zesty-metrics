@@ -41,10 +41,13 @@ class MetricsMiddleware(object):
                 )
 
     def process_request(self, request):
-        if conf.TIME_RESPONSES:
-            self.start_timing(request)
-        if conf.TRACK_USER_ACTIVITY:
-            self.update_last_seen_data(request)
+        try:
+            if conf.TIME_RESPONSES:
+                self.start_timing(request)
+            if conf.TRACK_USER_ACTIVITY:
+                self.update_last_seen_data(request)
+        except:
+            logging.exception('Exception occurred while logging to statsd.')
 
     def process_exception(self, request, exception):
         try:
@@ -62,7 +65,11 @@ class MetricsMiddleware(object):
 
     def process_response(self, request, response):
         if conf.TIME_RESPONSES:
-            self.stop_timing(request)
+            try:
+                self.stop_timing(request)
+            except:
+                logging.exception('Exception occurred while logging to statsd.')
+
         return response
 
     def start_timing(self, request):
