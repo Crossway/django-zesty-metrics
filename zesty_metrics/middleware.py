@@ -110,6 +110,6 @@ class MetricsMiddleware(object):
         if user.is_authenticated():
             try:
                 data = models.LastSeenData.objects.get(user=user)
-            except models.SiteProfile.DoesNotExist:
+            except models.LastSeenData.DoesNotExist:
                 data = models.LastSeenData(user=user)
             data.update(request)
