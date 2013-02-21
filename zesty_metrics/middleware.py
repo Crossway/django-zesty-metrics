@@ -92,6 +92,10 @@ class MetricsMiddleware(object):
                 view_name,
                 time_elapsed,
                 conf.TIMING_SAMPLE_RATE)
+            client.timing(
+                'view.aggregate-response-time',
+                time_elapsed,
+                conf.TIMING_SAMPLE_RATE)
             logging.info("Processed %s.%s in %ss",
                           conf.PREFIX, view_name, time_elapsed)
             try:
