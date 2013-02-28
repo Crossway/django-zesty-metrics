@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.signals import user_logged_in
 
-import statsd
+from statsd import statsd
 
 from . import models
 
