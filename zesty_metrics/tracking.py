@@ -14,6 +14,8 @@ from . import models
 def cache_metric(func_or_expiration):
     """Metric caching decorator.
 
+    Caches both in application cache and locally.
+
     Usage::
 
         class PhilosophyTracker(Tracker):
@@ -28,15 +30,19 @@ def cache_metric(func_or_expiration):
         else:
             expiration = 5 * 60  # 5 minutes
 
-        key = 'zesty_metric_%s' % func.__name__
+        cache_key = 'zesty_metric_%s' % func.__name__
 
         @wraps(func)
         def wrapper(self):
-            result = cache.get(key, None)
-            if result is None:
-                result = func(self)
-                cache.set(key, result, expiration)
-            return result
+            local_key = '_' + cache_key
+            if not hasattr(self, local_key):
+                result = cache.get(cache_key, None)
+                if result is None:
+                    result = func(self)
+                    cache.set(cache_key, result, expiration)
+                    setattr(self, local_key, result)
+
+            return getattr(self, local_key)
 
         return wrapper
 
