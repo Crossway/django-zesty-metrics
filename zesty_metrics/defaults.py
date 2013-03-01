@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """zesty_metrics.defaults -- default settings
 """
-ZESTY_METRICS_CLASSES = (
+ZESTY_TRACKING_CLASSES = (
     'zesty_metrics.tracking.UserAccounts',
     )
 
