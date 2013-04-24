@@ -122,7 +122,7 @@ class MetricsMiddleware(object):
             except AttributeError:
                 # Client doesn't flush, data already sent.
                 pass
-            logging.info("Flushed stats to %s:%s %s",
+            logging.debug("Flushed stats to %s:%s %s",
                           conf.HOST, conf.PORT, client._addr)
 
     # Other visit data
