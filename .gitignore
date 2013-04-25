@@ -33,3 +33,4 @@ build/
 local_secrets.ini
 federation.sublime-project
 federation.sublime-workspace
+dist/
