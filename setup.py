@@ -13,9 +13,10 @@ setup(
     version=version,
     author='David Eyk',
     author_email='deyk@crossway.org',
+    url='https://github.com/Crossway/django-zesty-metrics',
     license='BSD',
     packages=['zesty_metrics'],
-    short_description="Zesty metrics collection and Statsd integration for Django.",
+    description="Zesty metrics collection and Statsd integration for Django.",
     long_description=long_description,
     install_requires=['statsd>=1.0', 'Django>=1.4'],
     classifiers=[
