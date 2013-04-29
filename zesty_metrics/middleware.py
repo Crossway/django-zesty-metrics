@@ -44,8 +44,6 @@ class MetricsMiddleware(object):
         try:
             if conf.TIME_RESPONSES:
                 self.start_timing(request)
-            if conf.TRACK_USER_ACTIVITY:
-                self.update_last_seen_data(request)
         except:
             logging.exception('Exception occurred while logging to statsd.')
 
@@ -64,6 +62,8 @@ class MetricsMiddleware(object):
             self.gather_view_data(request, view_func)
 
     def process_response(self, request, response):
+        if conf.TRACK_USER_ACTIVITY:
+            self.update_last_seen_data(request)
         if conf.TIME_RESPONSES:
             try:
                 self.stop_timing(request)
