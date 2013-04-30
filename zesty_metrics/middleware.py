@@ -25,20 +25,16 @@ class MetricsMiddleware(object):
     scope = threading.local()
 
     def __init__(self):
+        client = self.scope.client = statsd.StatsClient(
+            host = conf.HOST,
+            port = conf.PORT,
+            prefix = conf.PREFIX,
+            )
         try:
-            self.scope.client = statsd.StatsClient(
-                host = conf.HOST,
-                port = conf.PORT,
-                prefix = conf.PREFIX,
-                batch_len = 1000,
-                )
-        except TypeError:
-            # Client doesn't support batch_len, use the default
-            self.scope.client = statsd.StatsClient(
-                host = conf.HOST,
-                port = conf.PORT,
-                prefix = conf.PREFIX,
-                )
+            self.scope.pipeline = client.pipeline()
+        except AttributeError:
+            # In case we're using an older statsd version.
+            self.scope.pipeline = client
 
     def process_request(self, request):
         try:
@@ -50,10 +46,10 @@ class MetricsMiddleware(object):
     def process_exception(self, request, exception):
         try:
             if hasattr(self.scope, 'client'):
-                self.scope.client.incr('view.exceptions')
+                self.scope.pipeline.incr('view.exceptions')
                 view_name = (getattr(self.scope, 'view_name', 'UNKNOWN') +
                              '.exceptions')
-                self.scope.client.incr(view_name)
+                self.scope.pipeline.incr(view_name)
         except:
             logging.exception('Exception occurred while logging to statsd.')
 
@@ -76,7 +72,7 @@ class MetricsMiddleware(object):
         """Start performance timing.
         """
         self.scope.request_start = time.time()
-        request.statsd = self.scope.client
+        request.statsd = self.scope.pipeline
 
     def gather_view_data(self, request, view_func):
         """Discover the view name.
@@ -103,7 +99,7 @@ class MetricsMiddleware(object):
         now = time.time()
         time_elapsed = now - getattr(self.scope, 'request_start', now)
         if hasattr(self.scope, 'client'):
-            client = self.scope.client
+            client = self.scope.pipeline
             view_name = getattr(self.scope, 'view_name', 'UNKNOWN')
             client.timing(
                 view_name,
@@ -118,11 +114,11 @@ class MetricsMiddleware(object):
             logging.info("Processed %s.%s in %ss",
                           conf.PREFIX, view_name, time_elapsed)
             try:
-                client.flush()
+                client.send()
             except AttributeError:
-                # Client doesn't flush, data already sent.
+                # Client isn't a pipeline, data already sent.
                 pass
-            logging.debug("Flushed stats to %s:%s %s",
+            logging.debug("Sent stats to %s:%s %s",
                           conf.HOST, conf.PORT, client._addr)
 
     # Other visit data
