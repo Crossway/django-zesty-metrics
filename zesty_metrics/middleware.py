@@ -41,7 +41,7 @@ class MetricsMiddleware(object):
             if conf.TIME_RESPONSES:
                 self.start_timing(request)
         except:
-            logging.exception('Exception occurred while logging to statsd.')
+            logger.exception('Exception occurred while logging to statsd.')
 
     def process_exception(self, request, exception):
         try:
@@ -51,7 +51,7 @@ class MetricsMiddleware(object):
                              '.exceptions')
                 self.scope.pipeline.incr(view_name)
         except:
-            logging.exception('Exception occurred while logging to statsd.')
+            logger.exception('Exception occurred while logging to statsd.')
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if conf.TIME_RESPONSES:
@@ -64,7 +64,7 @@ class MetricsMiddleware(object):
             try:
                 self.stop_timing(request)
             except:
-                logging.exception('Exception occurred while logging to statsd.')
+                logger.exception('Exception occurred while logging to statsd.')
 
         return response
 
@@ -111,15 +111,15 @@ class MetricsMiddleware(object):
                 conf.TIMING_SAMPLE_RATE)
             client.incr(view_name + '.requests')
             client.incr('view.requests')
-            logging.info("Processed %s.%s in %ss",
+            logger.info("Processed %s.%s in %ss",
                           conf.PREFIX, view_name, time_elapsed)
             try:
                 client.send()
             except AttributeError:
                 # Client isn't a pipeline, data already sent.
                 pass
-            logging.debug("Sent stats to %s:%s %s",
-                          conf.HOST, conf.PORT, client._addr)
+            logger.debug("Sent stats to %s:%s",
+                          conf.HOST, conf.PORT)
 
     # Other visit data
     def update_last_seen_data(self, request):
