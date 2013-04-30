@@ -51,6 +51,15 @@ command regularly. At least once a day, but you can update it as often
 as you want. This command reports metrics from the trackers that you
 configure in ``ZESTY_TRACKING_CLASSES``.
 
+If you want to send metrics from the client-side, hook up the default URLs in
+your ``urls.py``::
+
+    urlpatterns = patterns(
+        '',
+        url(r'^metrics/', include('zesty_metrics.urls')),
+        )
+
+
 
 Acknowledgements
 ================
