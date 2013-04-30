@@ -14,14 +14,9 @@ class StatView(ProcessFormView, FormMixin):
 
     def get_client(self):
         try:
-            return statsd.StatsClient(
-                host = conf.HOST,
-                port = conf.PORT,
-                prefix = conf.PREFIX,
-                batch_len = 1000,
-                )
-        except TypeError:
-            # Client doesn't support batch_len, use the default
+            return self.request.statsd
+        except AttributeError:
+            # We must not be using the Middleware.
             return statsd.StatsClient(
                 host = conf.HOST,
                 port = conf.PORT,
