@@ -125,10 +125,13 @@ class MetricsMiddleware(object):
     def update_last_seen_data(self, request):
         """Update the user's LastSeenData profile.
         """
-        user = request.user
-        if user.is_authenticated():
-            try:
-                data = models.LastSeenData.objects.get(user=user)
-            except models.LastSeenData.DoesNotExist:
-                data = models.LastSeenData(user=user)
-            data.update(request)
+        try:
+            user = request.user
+            if user.is_authenticated():
+                try:
+                    data = models.LastSeenData.objects.get(user=user)
+                except models.LastSeenData.DoesNotExist:
+                    data = models.LastSeenData(user=user)
+                data.update(request)
+        except AttributeError:
+            pass
