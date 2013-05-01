@@ -15,20 +15,17 @@ from zesty_metrics import conf
 class Command(NoArgsCommand):
     help = """Report metrics to StatsD. Run as a cron job for maximum effect."""
 
+    statsd = statsd.StatsClient(
+        host = conf.HOST,
+        port = conf.PORT,
+        prefix = conf.PREFIX,
+        )
+
     try:
-        statsd = statsd.StatsClient(
-            host = conf.HOST,
-            port = conf.PORT,
-            prefix = conf.PREFIX,
-            batch_len = 1000,
-            )
-    except TypeError:
-        # Client doesn't support batch_len
-        statsd = statsd.StatsClient(
-            host = conf.HOST,
-            port = conf.PORT,
-            prefix = conf.PREFIX,
-            )
+        pipeline = statsd.pipeline()
+    except AttributeError:
+        # statsd < 2.0
+        pipeline = statsd
 
     def _track(self, tracker, kind, func):
         """Track items on a tracker. Internal helper method.
@@ -65,11 +62,11 @@ class Command(NoArgsCommand):
         trackers = [self._import_tracker(tp) for tp in conf.TRACKING_CLASSES]
 
         for tracker in trackers:
-            self._track(tracker, 'gauges', self.statsd.gauge)
-            self._track(tracker, 'counters', self.statsd.incr)
+            self._track(tracker, 'gauges', self.pipeline.gauge)
+            self._track(tracker, 'counters', self.pipeline.incr)
 
         try:
-            self.statsd.flush()
+            self.pipeline.flush()
         except AttributeError:
             # Client doesn't flush, data already sent.
             pass
