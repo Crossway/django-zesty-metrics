@@ -127,11 +127,16 @@ class MetricsMiddleware(object):
         """
         try:
             user = request.user
-            if user.is_authenticated():
-                try:
-                    data = models.LastSeenData.objects.get(user=user)
-                except models.LastSeenData.DoesNotExist:
-                    data = models.LastSeenData(user=user)
-                data.update(request)
         except AttributeError:
-            pass
+            # No user, so nothing to do here.
+            return
+
+        if user.is_authenticated():
+            try:
+                data = models.LastSeenData.objects.get(user=user)
+            except models.LastSeenData.DoesNotExist:
+                data = models.LastSeenData(user=user)
+            try:
+                data.update(request)
+            except:
+                logger.exception("Couldn't update user LastSeenData:")
