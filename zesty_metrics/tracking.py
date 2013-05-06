@@ -40,7 +40,7 @@ def cache_metric(func_or_expiration):
                 if result is None:
                     result = func(self)
                     cache.set(cache_key, result, expiration)
-                    setattr(self, local_key, result)
+                setattr(self, local_key, result)
 
             return getattr(self, local_key)
 
