@@ -68,3 +68,12 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 
 .. _django-statsd: https://github.com/WoLpH/django-statsd
 .. _django-munin: https://github.com/ccnmtl/django-munin
+
+
+CHANGELOG
+=========
+
+
+* 0.1.1: Fixed "NO VALUE" error in ``report_metrics`` command when values were
+  pulled from the cache.
+* 0.1: Initial release
