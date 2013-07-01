@@ -17,4 +17,7 @@ urlpatterns = patterns('',
                        url(r'^gauge/(?P<stat>[^/]+)/?',
                            csrf_exempt(views.GaugeView.as_view()),
                            name="metrics_gauge"),
+                       url(r'^report-request-rendered/(?P<request_id>[^/]+)/?',
+                           csrf_exempt(views.RequestTimingReportView.as_view()),
+                           name="metrics_report_request_rendered")
                        )

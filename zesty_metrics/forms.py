@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""zesty_metrics.forms -- various data-handling forms.
+"""
 from django import forms
 
 

@@ -5,13 +5,37 @@ from __future__ import with_statement
 import time
 import threading
 import logging
+from uuid import uuid1
+from hashlib import md5
 
+from django.core.cache import cache
+
+from user_agents import parse as parse_ua
 import statsd
 
 from . import models
 from . import conf
 
 logger = logging.getLogger('metrics')
+
+
+request_id_keys = (
+    'HTTP_ACCEPT_CHARSET',
+    'HTTP_ACCEPT',
+    'HTTP_ACCEPT_ENCODING',
+    'HTTP_ACCEPT_LANGUAGE',
+    'HTTP_CONNECTION',
+    'HTTP_USER_AGENT',
+    'REMOTE_ADDR',
+)
+
+
+def id_request(request):
+    """Generate a uniquish ID for a given request.
+    """
+    return md5(uuid1().get_hex() + '|'.join([request.META.get(k, '')
+                                             for k in request_id_keys])
+                                             ).hexdigest()
 
 
 class MetricsMiddleware(object):
@@ -37,6 +61,8 @@ class MetricsMiddleware(object):
             self.scope.pipeline = client
 
     def process_request(self, request):
+        request.statsd = self.scope.pipeline
+        request.zesty = self.scope
         try:
             if conf.TIME_RESPONSES:
                 self.start_timing(request)
@@ -72,7 +98,6 @@ class MetricsMiddleware(object):
         """Start performance timing.
         """
         self.scope.request_start = time.time()
-        request.statsd = self.scope.pipeline
 
     def gather_view_data(self, request, view_func):
         """Discover the view name.
@@ -91,35 +116,47 @@ class MetricsMiddleware(object):
             method += '_ajax'
         name = '%s.%s' % (name, method)
 
+        self.scope.id = id_request(request)
+
+        self.scope.agent = parse_ua(request.META['HTTP_USER_AGENT'])
         self.scope.view_name = "view." + name
 
     def stop_timing(self, request):
         """Stop performance timing.
         """
         now = time.time()
-        time_elapsed = now - getattr(self.scope, 'request_start', now)
+        started = getattr(self.scope, 'request_start', now)
+        time_elapsed = now - started
         if hasattr(self.scope, 'client'):
             client = self.scope.pipeline
             view_name = getattr(self.scope, 'view_name', 'UNKNOWN')
-            client.timing(
-                view_name,
-                time_elapsed,
-                conf.TIMING_SAMPLE_RATE)
-            client.timing(
-                'view.aggregate-response-time',
-                time_elapsed,
-                conf.TIMING_SAMPLE_RATE)
+            if time_elapsed:
+                client.timing(
+                    view_name,
+                    time_elapsed,
+                    conf.TIMING_SAMPLE_RATE)
+                client.timing(
+                    'view.aggregate-response-time',
+                    time_elapsed,
+                    conf.TIMING_SAMPLE_RATE)
             client.incr(view_name + '.requests')
             client.incr('view.requests')
-            logger.info("Processed %s.%s in %ss",
-                          conf.PREFIX, view_name, time_elapsed)
             try:
                 client.send()
             except AttributeError:
                 # Client isn't a pipeline, data already sent.
                 pass
-            logger.debug("Sent stats to %s:%s",
-                          conf.HOST, conf.PORT)
+            agent = getattr(self.scope, "agent", None)
+            rid = getattr(self.scope, "rid", None)
+            if agent and rid:
+                data = {
+                    'started': started,
+                    'server_time': time_elapsed,
+                    'agent': agent,
+                    'view_name': view_name,
+                }
+                cache.set('request:' + rid, data, 5 * 60)
+
 
     # Other visit data
     def update_last_seen_data(self, request):
@@ -138,5 +175,8 @@ class MetricsMiddleware(object):
                 data = models.LastSeenData(user=user)
             try:
                 data.update(request)
+            except IntegrityError:
+                # User probably got created in a concurrent request?
+                pass
             except:
                 logger.exception("Couldn't update user LastSeenData:")
