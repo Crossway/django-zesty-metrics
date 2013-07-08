@@ -8,8 +8,6 @@ from django.contrib.auth.signals import user_logged_in
 
 from statsd import statsd
 
-from . import models
-
 
 @receiver(post_save, sender=User)
 def handle_new_user(sender, instance, created, **kwargs):
@@ -18,6 +16,7 @@ def handle_new_user(sender, instance, created, **kwargs):
         statsd.incr("users.new")
 
         # Create LastSeenData object.
+        from . import models
         models.LastSeenData.objects.create(user=instance)
 
 
