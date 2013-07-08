@@ -111,18 +111,16 @@ class MetricsMiddleware(object):
                 conf.TIMING_SAMPLE_RATE)
             client.incr(view_name + '.requests')
             client.incr('view.requests')
-            logger.info("Processed %s.%s in %ss",
-                          conf.PREFIX, view_name, time_elapsed)
+            logger.info("Processed %s.%s in %ss", conf.PREFIX, view_name, time_elapsed)
             try:
                 client.send()
             except AttributeError:
                 # Client isn't a pipeline, data already sent.
                 pass
-            logger.debug("Sent stats to %s:%s",
-                          conf.HOST, conf.PORT)
             except IndexError:
                 # Nothing to send.
                 pass
+            logger.debug("Sent stats to %s:%s", conf.HOST, conf.PORT)
 
     # Other visit data
     def update_last_seen_data(self, request):

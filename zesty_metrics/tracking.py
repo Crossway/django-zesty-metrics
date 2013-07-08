@@ -73,7 +73,7 @@ class UserAccounts(Tracker):
         churn_rate = 'users.churn_rate',
         user_duration_average = 'users.average_duration',
         engagement_ratio = 'users.engagement_ratio',
-        )
+    )
 
     @property
     def past_day(self):
@@ -150,7 +150,7 @@ class UserAccounts(Tracker):
             & (Q(last_seen__lt=self.past_30_days) \
                | Q(active_this_month__lt=self.past_30_days) \
                | Q(active_last_month__lt=self.past_30_days))
-            )
+        )
 
     @property
     @cache_metric
@@ -165,7 +165,7 @@ class UserAccounts(Tracker):
         """
         return self.last_month_users.filter(
             last_seen__gte=self.past_30_days
-            )
+        )
 
     @property
     @cache_metric
@@ -180,7 +180,7 @@ class UserAccounts(Tracker):
         """
         return self.last_month_users.filter(
             last_seen__lte=self.past_30_days,
-            )
+        )
 
     @property
     @cache_metric
