@@ -62,7 +62,8 @@ class Tracker(object):
 class UserAccounts(Tracker):
     # Map metrics object attributes to gauge names:
     gauges = dict(
-        new_users_count = 'users.new_this_month',
+        new_users_monthly_count = 'users.new_this_month',
+        new_users_daily_count = 'users.new_past_24h',
         daily_active_users_count = 'users.active.daily',
         monthly_active_users_count = 'users.active.monthly',
         last_month_users_count = 'users.active.last_month',
@@ -113,17 +114,30 @@ class UserAccounts(Tracker):
         return self.monthly_active_users.count()
 
     @property
-    def new_users(self):
+    def new_users_monthly(self):
         """Query of newly registered users in the past 30 days.
         """
         return User.objects.filter(date_joined__gte=self.past_30_days)
 
     @property
+    def new_users_daily(self):
+        """Query of newly registered users in the past 24 hours.
+        """
+        return User.objects.filter(date_joined__gte=self.past_day)
+
+    @property
     @cache_metric
-    def new_users_count(self):
+    def new_users_monthly_count(self):
         """Count of newly registered users in the past 30 days.
         """
-        return self.new_users.count()
+        return self.new_users_monthly.count()
+
+    @property
+    @cache_metric
+    def new_users_daily_count(self):
+        """Count of newly registered users in the past 24 hours.
+        """
+        return self.new_users_monthly.count()
 
     @property
     def last_month_users(self):
