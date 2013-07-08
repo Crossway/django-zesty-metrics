@@ -66,7 +66,10 @@ class Command(NoArgsCommand):
             self._track(tracker, 'counters', self.pipeline.incr)
 
         try:
-            self.pipeline.flush()
+            self.pipeline.send()
         except AttributeError:
             # Client doesn't flush, data already sent.
+            pass
+        except IndexError:
+            # Nothing in the pipeline to send.
             pass
