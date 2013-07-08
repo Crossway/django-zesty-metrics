@@ -120,6 +120,9 @@ class MetricsMiddleware(object):
                 pass
             logger.debug("Sent stats to %s:%s",
                           conf.HOST, conf.PORT)
+            except IndexError:
+                # Nothing to send.
+                pass
 
     # Other visit data
     def update_last_seen_data(self, request):
