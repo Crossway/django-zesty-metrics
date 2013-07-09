@@ -118,7 +118,7 @@ class MetricsMiddleware(object):
 
         self.scope.id = id_request(request)
 
-        self.scope.agent = parse_ua(request.META['HTTP_USER_AGENT'])
+        self.scope.agent = parse_ua(request.META.get('HTTP_USER_AGENT', ''))
         self.scope.view_name = "view." + name
 
     def stop_timing(self, request):
