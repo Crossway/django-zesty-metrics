@@ -36,9 +36,9 @@ class Command(NoArgsCommand):
                 if callable(value):
                     value = value()
             except:
-                logging.error("%s::%s: NO VALUE", kind, name)
+                logging.error("%s::%s.%s: NO VALUE", kind, conf.PREFIX, name)
             else:
-                logging.info("%s::%s: %s", kind, name, value)
+                logging.info("%s::%s.%s: %s", kind, conf.PREFIX, name, value)
                 func(name, value)
 
     def _import_tracker(self, path):
@@ -66,7 +66,10 @@ class Command(NoArgsCommand):
             self._track(tracker, 'counters', self.pipeline.incr)
 
         try:
-            self.pipeline.flush()
+            self.pipeline.send()
         except AttributeError:
             # Client doesn't flush, data already sent.
+            pass
+        except IndexError:
+            # Nothing in the pipeline to send.
             pass
