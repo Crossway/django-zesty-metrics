@@ -99,10 +99,12 @@ class RequestTimingReportView(TimingView):
         self.request_id = self.kwargs['request_id']
         cache_key = 'request:' + self.request_id
         data = cache.get(cache_key, None)
+
         if data is not None:
             cache.delete(cache_key, None)
             delta = now - data.get('started', now)
             agent = data.get('agent', None)
+
             if agent is not None:
                 payload = {'delta': delta}
                 names = [
@@ -110,4 +112,5 @@ class RequestTimingReportView(TimingView):
                     "{ua.browser.family} {ua.browser.version_string}",
                     "{ua.browser.family} {ua.browser.version_string} {ua.os.family} {ua.os.version_string}".format(ua=agent),
                 ]
+
                 return dict((name, payload) for name in names)
