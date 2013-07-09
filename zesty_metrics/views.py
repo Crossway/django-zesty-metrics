@@ -110,6 +110,4 @@ class RequestTimingReportView(TimingView):
                     "{ua.browser.family} {ua.browser.version_string}",
                     "{ua.browser.family} {ua.browser.version_string} {ua.os.family} {ua.os.version_string}".format(ua=agent),
                 ]
-                for name in names:
-                    print '#'*15, name, payload
                 return dict((name, payload) for name in names)
