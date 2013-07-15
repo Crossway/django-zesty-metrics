@@ -30,6 +30,8 @@ class StatView(ProcessFormView, FormMixin):
     http_method_names = ['get', 'post']
     stat_method = None
 
+    get = ProcessFormView.post
+
     def get_client(self):
         try:
             return self.request.statsd
