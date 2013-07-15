@@ -60,7 +60,7 @@ class StatView(ProcessFormView, FormMixin):
         stat_data = self.get_stat_data()
         if stat_data is not None:
             for name, value in stat_data.iteritems():
-                handler(name, **data)
+                handler(name, **stat_data)
 
 
 class IncrView(StatView):
