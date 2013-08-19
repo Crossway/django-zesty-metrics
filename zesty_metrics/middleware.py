@@ -38,6 +38,20 @@ def id_request(request):
                                              ).hexdigest()
 
 
+class LocalStatsd(threading.local):
+    def __init__(self):
+        client = self.client = statsd.StatsClient(
+            host = conf.HOST,
+            port = conf.PORT,
+            prefix = conf.PREFIX,
+        )
+        try:
+            self.pipeline = client.pipeline()
+        except AttributeError:
+            # In case we're using an older statsd version.
+            self.pipeline = client
+
+
 class MetricsMiddleware(object):
     """Middleware to capture basic metrics about a request.
 
@@ -46,19 +60,7 @@ class MetricsMiddleware(object):
     - Performance timing
     - Last-seen data for authenticated users.
     """
-    scope = threading.local()
-
-    def __init__(self):
-        client = self.scope.client = statsd.StatsClient(
-            host = conf.HOST,
-            port = conf.PORT,
-            prefix = conf.PREFIX,
-            )
-        try:
-            self.scope.pipeline = client.pipeline()
-        except AttributeError:
-            # In case we're using an older statsd version.
-            self.scope.pipeline = client
+    scope = LocalStatsd()
 
     def process_request(self, request):
         request.statsd = self.scope.pipeline
