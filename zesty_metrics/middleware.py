@@ -34,9 +34,11 @@ request_id_keys = (
 def id_request(request):
     """Generate a uniquish ID for a given request.
     """
-    return md5(uuid1().get_hex() + '|'.join([request.META.get(k, '')
-                                             for k in request_id_keys])
-                                             ).hexdigest()
+    key = '|'.join([
+        request.META.get(k, '')
+        for k in request_id_keys
+    ])
+    return md5(uuid1().get_hex() + key).hexdigest()
 
 
 class LocalStatsd(threading.local):
@@ -164,7 +166,6 @@ class MetricsMiddleware(object):
                     'view_name': view_name,
                 }
                 cache.set('request:' + rid, data, 5 * 60)
-
 
     # Other visit data
     def update_last_seen_data(self, request):
