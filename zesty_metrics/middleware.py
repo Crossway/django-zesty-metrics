@@ -9,6 +9,7 @@ from uuid import uuid1
 from hashlib import md5
 
 from django.core.cache import cache
+from django.db import IntegrityError
 
 from user_agents import parse as parse_ua
 import statsd
