@@ -18,7 +18,7 @@ setup(
     packages=['zesty_metrics'],
     description="Zesty metrics collection and Statsd integration for Django.",
     long_description=long_description,
-    install_requires=['statsd>=1.0', 'Django>=1.4',
+    install_requires=['statsd==2.1.2', 'Django>=1.4',
                       'pyyaml', 'ua-parser', 'user-agents'],
     classifiers=[
         'License :: OSI Approved :: BSD License',
