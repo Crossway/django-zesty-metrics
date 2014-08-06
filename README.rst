@@ -73,7 +73,7 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 CHANGELOG
 =========
 
-
+* 0.2: Added latency tracking, myriad bug-fixes.
 * 0.1.1: Fixed "NO VALUE" error in ``report_metrics`` command when values were
   pulled from the cache.
 * 0.1: Initial release
