@@ -45,3 +45,17 @@ class LastSeenData(models.Model):
 
         if changed:
             self.save()
+
+
+class DailyActivityRecord(models.Model):
+    user = models.ForeignKey(User, db_index=True)
+    when = models.DateField(auto_now=True, db_index=True,
+                            editable=False,
+                            help_text="When this user was active.")
+    what = models.CharField(max_length=255, db_index=True,
+                            unique_for_date='when')
+
+    class Meta:
+        unique_together = (
+            ('user', 'what', 'when'),
+        )
