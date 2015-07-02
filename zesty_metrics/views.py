@@ -67,6 +67,12 @@ class StatView(ProcessFormView, FormMixin):
                 prefix = conf.PREFIX,
             )
 
+    def get_form_kwargs(self):
+        kwargs = super(StatView, self).get_form_kwargs()
+        if self.request.method == 'GET':
+            kwargs['data'] = self.request.GET
+        return kwargs
+
     def form_valid(self, form):
         self.send_stat(form)
         if self.request.method == 'POST':
@@ -83,22 +89,23 @@ class StatView(ProcessFormView, FormMixin):
     def send_stat(self, form):
         client = self.get_client()
         handler = getattr(client, self.stat_method)
-        stat_data = self.get_stat_data()
+        stat_data = self.get_stat_data(form)
         if stat_data is not None:
-            for name, value in stat_data.iteritems():
-                handler(name, **stat_data)
+            for name, value in sorted(stat_data.iteritems()):
+                handler(name, **value)
 
 
 class IncrView(StatView):
     """Increment a counter.
     """
-    form_class = forms.IncrForm
+    form_class = forms.CountForm
     stat_method = 'incr'
 
 
-class DecrView(IncrView):
+class DecrView(StatView):
     """Decrement a counter.
     """
+    form_class = forms.CountForm
     stat_method = 'decr'
 
 
@@ -120,7 +127,7 @@ class RequestTimingReportView(TimingView):
     form_class = Form
     stat_method = 'timing'
 
-    def get_stat_data(self):
+    def get_stat_data(self, form):
         now = time.time()
         self.request_id = self.kwargs['request_id']
         cache_key = 'request:' + self.request_id
@@ -134,9 +141,12 @@ class RequestTimingReportView(TimingView):
             if agent is not None:
                 payload = {'delta': delta}
                 names = [
-                    "{ua.browser.family}",
-                    "{ua.browser.family} {ua.browser.version_string}",
-                    "{ua.browser.family} {ua.browser.version_string} {ua.os.family} {ua.os.version_string}".format(ua=agent),
+                    "{data[view_name]}",
+                    "{data[view_name]}.{ua.browser.family}",
+                    "browsers.{ua.browser.family}",
                 ]
 
-                return dict((name, payload) for name in names)
+                return dict(
+                    (name.format(ua=agent, data=data).replace(' ', '-'), payload)
+                    for name in names
+                )

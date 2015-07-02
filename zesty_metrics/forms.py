@@ -28,14 +28,17 @@ class DefaultFloatField(forms.FloatField):
         return result
 
 
-class StatForm(forms.Form):
+class ActivityForm(forms.Form):
+    pass
+
+
+
+class CountForm(forms.Form):
     rate = DefaultFloatField(required=False,
                              default=1.0,
                              help_text="Sample rate, between 0 and 1.")
-
-
-class IncrForm(StatForm):
     count = DefaultIntegerField(default=1, required=False)
+
 
 
 class TimingForm(forms.Form):
