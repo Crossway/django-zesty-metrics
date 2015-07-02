@@ -4,14 +4,17 @@
 import time
 import json
 from django.http import HttpResponse
+from django.views.generic import View
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.forms import Form
 from django.core.cache import cache
+from django.db import IntegrityError
 
 import statsd
 
 from . import conf
 from . import forms
+from . import models
 
 
 TRANSPARENT_1X1_PNG = (
@@ -24,6 +27,27 @@ TRANSPARENT_1X1_PNG = (
     "\x00\x40\xe6\xd8\x66\x00\x00\x00\x0c\x49\x44\x41\x54\x78\xda\x62"
     "\x60\x00\x08\x30\x00\x00\x02\x00\x01\x4f\x6d\x59\xe1\x00\x00\x00"
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82\x00")
+
+
+class ActivityView(View):
+    http_method_names = ['get', 'post']
+
+    def get(self, request, *args, **kwargs):
+        self.record_activity()
+        return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
+
+    def post(self, request, *args, **kwargs):
+        self.record_activity()
+        return HttpResponse(status=204)
+
+    def record_activity(self):
+        try:
+            models.DailyActivityRecord.objects.create(
+                what = self.kwargs['what'],
+                user = self.request.user,
+            )
+        except IntegrityError as e:
+            pass
 
 
 class StatView(ProcessFormView, FormMixin):
