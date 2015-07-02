@@ -16,7 +16,7 @@ class DefaultIntegerField(forms.IntegerField):
         return result
 
 
-class DefaultFloatField(forms.IntegerField):
+class DefaultFloatField(forms.FloatField):
     def __init__(self, *args, **kwargs):
         self.default = kwargs.pop('default', None)
         super(DefaultFloatField, self).__init__(*args, **kwargs)
