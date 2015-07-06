@@ -368,3 +368,26 @@ class CleanupCommandTests(ClientTestCase):
         cleaner.handle(days=30)
 
         self.assertEqual(activities.count(), 3)
+
+
+class ReportMetricsCommandTests(unittest.TestCase):
+    def test_it_should_report_metrics_from_the_configured_test_tracker(self):
+        reporter = report_metrics.Command()
+
+        pipeline_p = 'zesty_metrics.management.commands.report_metrics.Command.pipeline'
+        with patch(pipeline_p) as patched:
+            reporter.handle_noargs()
+
+            patched.gauge.assert_has_calls([
+                call(
+                    'things.foo',
+                    5,
+                ),
+            ])
+
+            patched.incr.assert_has_calls([
+                call(
+                    'stuff.bar',
+                    20,
+                ),
+            ])
