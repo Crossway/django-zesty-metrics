@@ -6,7 +6,7 @@ if os.path.isfile('README.rst'):
 else:
     long_description = ''
 
-version = '0.2'
+version = '0.3'
 
 setup(
     name='django-zesty-metrics',
@@ -20,6 +20,7 @@ setup(
     long_description=long_description,
     install_requires=['statsd==2.1.2', 'Django>=1.4',
                       'pyyaml==3.11', 'ua-parser==0.3.5', 'user-agents==0.2.0'],
+
     classifiers=[
         'License :: OSI Approved :: BSD License',
     ],

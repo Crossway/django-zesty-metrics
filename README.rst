@@ -6,17 +6,22 @@ report important metrics to a StatD server.
 
 Out of the box, it will track:
 
-* response times individually by view, and in aggregate
-* aggregate user activity data
+- response times individually by view, and in aggregate
+- aggregate user activity data
+
+With some minor configuration, it will track:
+
+- individual user activity data
+- arbitrary metrics
 
 
 Requirements
 ============
 
-* Django_ >= 1.4
-* statsd_ == 1.0 (StatsD client; `GitHub <https://github.com/jsocol/pystatsd>`)
-* `Graphite server`_ (docs_)
-* `Statsd server`_ (`blog post`_)
+- Django_ >= 1.4
+- statsd_ == 1.0 (StatsD client; `GitHub <https://github.com/jsocol/pystatsd>`)
+- `Graphite server`_ (docs_)
+- `Statsd server`_ (`blog post`_)
 
 
 .. _Django: https://pypi.python.org/pypi/Django/
@@ -26,10 +31,15 @@ Requirements
 .. _Statsd server: https://github.com/etsy/statsd
 .. _blog post: http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/
 
+
 Installation
 ============
 
-To install simply execute `python setup.py install`.
+Install with `pip install django-zesty-metrics`.
+
+Alternately, clone `the git repository`_ and execute `python setup.py install` within.
+
+.. _the git repository: https://github.com/Crossway/django-zesty-metrics
 
 
 Configuration
@@ -37,14 +47,14 @@ Configuration
 
 In your Django settings:
 
-* Add ``zesty_metrics`` to the ``INSTALLED_APPS``
-* Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
-* Set the following, as needed:
+- Add ``zesty_metrics`` to the ``INSTALLED_APPS``
+- Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
+- Set the following, as needed:
   - ``STATSD_HOST``, default ``localhost``
   - ``STATSD_PORT``, default ``8125``
   - ``STATSD_PREFIX``, default ``None``
   - ``ZESTY_TRACKING_CLASSES``, default ``('zesty_metrics.tracking.UserAccounts',)``
-* Run ``syncdb`` (or ``migrate`` if you use South).
+- Run ``syncdb`` (or ``migrate`` if you use South).
 
 Set up a cron job to run the ``report_metrics`` django-admin.py
 command regularly. At least once a day, but you can update it as often
@@ -73,7 +83,13 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 CHANGELOG
 =========
 
-* 0.2: Added latency tracking, myriad bug-fixes.
-* 0.1.1: Fixed "NO VALUE" error in ``report_metrics`` command when values were
+- 0.3:
+  - Added tests! Many things that didn't work now work.
+  - Added DailyActivityRecord for tracking daily activity.
+
+- 0.2: Added latency tracking, myriad bug-fixes.
+
+- 0.1.1: Fixed "NO VALUE" error in ``report_metrics`` command when values were
   pulled from the cache.
-* 0.1: Initial release
+
+- 0.1: Initial release
