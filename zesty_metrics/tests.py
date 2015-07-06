@@ -15,15 +15,17 @@ from user_agents import parse as parse_ua
 from zesty_metrics import middleware
 from zesty_metrics import views
 from zesty_metrics import models
+from zesty_metrics.management.commands import cleanup
+from zesty_metrics.management.commands import report_metrics
 
 
 real_date = dt.date
 
-today = dt.date.today()
-tomorrow = today + dt.timedelta(days=1)
-
 
 class FakeTomorrowDate(dt.date):
+    today = dt.date.today()
+    tomorrow = today + dt.timedelta(days=1)
+
     "Mock out the today method, but return a real date instance."
     def __new__(cls, *args, **kwargs):
         return real_date.__new__(real_date, *args, **kwargs)
@@ -38,7 +40,7 @@ class FakeTomorrowDate(dt.date):
 
     @classmethod
     def today(cls):
-        return tomorrow
+        return cls.tomorrow
 
 
 class ClientTestCase(unittest.TestCase):
@@ -339,3 +341,30 @@ class ReportRequestRenderedViewTests(MockedStatsdTestCase):
                 delta = 500,
             ),
         ])
+
+
+class CleanupCommandTests(ClientTestCase):
+    def setUp(self):
+        super(CleanupCommandTests, self).setUp()
+        old_tomorrow = FakeTomorrowDate.tomorrow
+        for days in xrange(0, 91, 10):
+            with patch('datetime.date', FakeTomorrowDate):
+                FakeTomorrowDate.tomorrow = dt.date.today() - dt.timedelta(days=days)
+                models.DailyActivityRecord.objects.create(
+                    what = 'foo',
+                    user = self.user,
+                )
+        FakeTomorrowDate.tomorrow = old_tomorrow
+
+    def tearDown(self):
+        super(CleanupCommandTests, self).tearDown()
+        models.DailyActivityRecord.objects.all().delete()
+
+    def test_it_should_clean_up_old_activity_records(self):
+        activities = models.DailyActivityRecord.objects.all()
+        self.assertEqual(activities.count(), 10)
+
+        cleaner = cleanup.Command()
+        cleaner.handle(days=30)
+
+        self.assertEqual(activities.count(), 3)
