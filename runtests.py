@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, sys
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
