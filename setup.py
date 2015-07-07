@@ -6,7 +6,7 @@ if os.path.isfile('README.rst'):
 else:
     long_description = ''
 
-version = '0.3'
+version = '0.3.1'
 
 setup(
     name='django-zesty-metrics',
@@ -15,7 +15,7 @@ setup(
     author_email='deyk@crossway.org',
     url='https://github.com/Crossway/django-zesty-metrics',
     license='BSD',
-    packages=['zesty_metrics'],
+    packages=['zesty_metrics', 'zesty_metrics.management', 'zesty_metrics.migrations'],
     description="Zesty metrics collection and Statsd integration for Django.",
     long_description=long_description,
     install_requires=['statsd==2.1.2', 'Django>=1.4',

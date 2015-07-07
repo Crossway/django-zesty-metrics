@@ -83,6 +83,9 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 CHANGELOG
 =========
 
+- 0.3.1:
+  - Added missing migrations and management commands.
+
 - 0.3:
   - Added tests! Many things that didn't work now work.
   - Added DailyActivityRecord for tracking daily activity.
