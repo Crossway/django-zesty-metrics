@@ -8,7 +8,6 @@ from django.views.generic import View
 from django.views.generic.edit import ProcessFormView, FormMixin
 from django.forms import Form
 from django.core.cache import cache
-from django.db import IntegrityError
 
 import statsd
 

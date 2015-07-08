@@ -5,6 +5,7 @@ import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 
 from . import handlers
 
@@ -51,7 +52,7 @@ class DailyActivityRecordManager(models.Manager):
     def record_activity(self, who, what):
         try:
             self.create(
-                what = self.kwargs['what'],
+                what = what,
                 user = who,
             )
         except IntegrityError as e:
