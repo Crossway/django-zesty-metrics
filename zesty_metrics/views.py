@@ -41,13 +41,10 @@ class ActivityView(View):
         return HttpResponse(status=204)
 
     def record_activity(self):
-        try:
-            models.DailyActivityRecord.objects.create(
-                what = self.kwargs['what'],
-                user = self.request.user,
-            )
-        except IntegrityError as e:
-            pass
+        models.DailyActivityRecord.objects.record_activity(
+            who = self.request.user,
+            what = self.kwargs['what'],
+        )
 
 
 class StatView(ProcessFormView, FormMixin):

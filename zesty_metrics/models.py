@@ -47,6 +47,17 @@ class LastSeenData(models.Model):
             self.save()
 
 
+class DailyActivityRecordManager(models.Manager):
+    def record_activity(self, who, what):
+        try:
+            self.create(
+                what = self.kwargs['what'],
+                user = who,
+            )
+        except IntegrityError as e:
+            pass
+
+
 class DailyActivityRecord(models.Model):
     user = models.ForeignKey(User, db_index=True)
     when = models.DateField(auto_now=True, db_index=True,
@@ -59,3 +70,5 @@ class DailyActivityRecord(models.Model):
         unique_together = (
             ('user', 'what', 'when'),
         )
+
+    objects = DailyActivityRecordManager()
