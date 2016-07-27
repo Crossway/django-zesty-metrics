@@ -18,7 +18,7 @@ With some minor configuration, it will track:
 Requirements
 ============
 
-- Django_ >= 1.4
+- Django_ >= 1.9
 - statsd_ == 1.0 (StatsD client; `GitHub <https://github.com/jsocol/pystatsd>`)
 - `Graphite server`_ (docs_)
 - `Statsd server`_ (`blog post`_)
