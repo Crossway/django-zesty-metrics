@@ -82,6 +82,9 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 CHANGELOG
 =========
 
+- 0.4:
+  - added support for Django-native migrations and other updates for Django 1.9+ compatibility.
+
 - 0.3.1:
   - Added missing migrations and management commands.
 
