@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime as dt
 
-from django.utils import unittest
+import unittest
 from django.test.client import Client
 
 from django.core.cache import cache

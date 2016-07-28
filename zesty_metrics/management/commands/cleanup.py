@@ -4,7 +4,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.core import exceptions
-from django.utils.importlib import import_module
+from importlib import import_module
 
 import statsd
 

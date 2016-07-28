@@ -3,7 +3,7 @@ import logging
 
 from django.core.management.base import NoArgsCommand
 from django.core import exceptions
-from django.utils.importlib import import_module
+from importlib import import_module
 
 import statsd
 
