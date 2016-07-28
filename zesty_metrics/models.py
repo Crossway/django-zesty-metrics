@@ -5,8 +5,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
-from . import handlers
-
 
 class LastSeenData(models.Model):
     user = models.OneToOneField(User, db_index=True)
