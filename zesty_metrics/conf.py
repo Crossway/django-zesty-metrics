@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.conf -- configuration values
-"""
 import statsd
 from django.conf import settings
 from . import defaults

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.models -- user-metrics-related models.
-"""
 import datetime
 
 from django.db import models

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.middleware -- Timing middleware for StatsD metrics.
-"""
 import time
 import threading
 import logging
