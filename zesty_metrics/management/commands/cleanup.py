@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.management.commands.cleanup
-"""
 import datetime
 from optparse import make_option
 

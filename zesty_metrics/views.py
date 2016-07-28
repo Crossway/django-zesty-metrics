@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.views -- metrics reporting views
-"""
 import time
 import json
 from django.http import HttpResponse

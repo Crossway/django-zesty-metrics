@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.tracking -- tracking metrics for user accounts.
-"""
 import datetime as dt
 from functools import wraps
 

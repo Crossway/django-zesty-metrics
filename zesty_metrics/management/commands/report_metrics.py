@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-"""zesty_metrics.management.commands.report_metrics
-"""
 import logging
 
 from django.core.management.base import NoArgsCommand
