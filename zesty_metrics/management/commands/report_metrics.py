@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.core import exceptions
 from importlib import import_module
 
@@ -10,7 +10,7 @@ import statsd
 from zesty_metrics import conf
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = """Report metrics to StatsD. Run as a cron job for maximum effect."""
 
     statsd = statsd.StatsClient(
@@ -56,7 +56,7 @@ class Command(NoArgsCommand):
             raise exceptions.ImproperlyConfigured('Tracker module "%s" does not define a "%s" class' % (module, classname))
         return klass()
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         trackers = [self._import_tracker(tp) for tp in conf.TRACKING_CLASSES]
 
         for tracker in trackers:
