@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-from optparse import make_option
+from argparse import add_argument
 
 from django.core.management.base import BaseCommand
 from django.core import exceptions
@@ -16,10 +16,12 @@ from zesty_metrics.models import DailyActivityRecord
 class Command(BaseCommand):
     help = """Clean up old activity records."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('--days', default='90', type=int,
-                    help='Delete records older than this many days.'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('--days',
+                            dest='days',
+                            type=int,
+                            default=90,
+                            help='Delete records older than this many days.')
 
     def delete_records(self, delete_before):
         DailyActivityRecord.objects.filter(when__lt=delete_before).delete()
