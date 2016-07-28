@@ -31,7 +31,7 @@ class ActivityView(View):
 
     def get(self, request, *args, **kwargs):
         self.record_activity()
-        return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
+        return HttpResponse(TRANSPARENT_1X1_PNG, content_type="image/png")
 
     def post(self, request, *args, **kwargs):
         self.record_activity()
@@ -72,7 +72,7 @@ class StatView(ProcessFormView, FormMixin):
         if self.request.method == 'POST':
             return HttpResponse(status=204)
         else:
-            return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
+            return HttpResponse(TRANSPARENT_1X1_PNG, content_type="image/png")
 
     def form_invalid(self, form):
         return HttpResponse(json.dumps(form.errors), status=400)
