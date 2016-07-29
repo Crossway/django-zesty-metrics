@@ -7,7 +7,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.admin',
     'tests',
-    'zesty_metrics',
+    'zesty_metrics.apps.ZestyMetricsConfig',
 ]
 
 DATABASES = {
