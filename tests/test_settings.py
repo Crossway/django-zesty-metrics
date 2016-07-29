@@ -19,6 +19,6 @@ DATABASES = {
 
 ROOT_URLCONF = 'tests.urls'
 
-ZESTY_TRACKING_CLASSES = (
+ZESTY_TRACKING_CLASSES = [
     'tests.trackers.TestTracker',
-    )
+]

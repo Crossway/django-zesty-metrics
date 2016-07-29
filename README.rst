@@ -52,7 +52,7 @@ Configuration
     - ``STATSD_HOST``, default ``localhost``
     - ``STATSD_PORT``, default ``8125``
     - ``STATSD_PREFIX``, default ``None``
-    - ``ZESTY_TRACKING_CLASSES``, default ``('zesty_metrics.tracking.UserAccounts',)``
+    - ``ZESTY_TRACKING_CLASSES``, default ``['zesty_metrics.tracking.UserAccounts']``
 - Run ``manage.py migrate``.
 
 Set up a cron job to run the ``report_metrics`` django-admin.py
