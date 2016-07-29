@@ -63,10 +63,9 @@ configure in ``ZESTY_TRACKING_CLASSES``.
 If you want to send metrics from the client-side, hook up the default URLs in
 your ``urls.py``::
 
-    urlpatterns = patterns(
-        '',
+    urlpatterns = [
         url(r'^metrics/', include('zesty_metrics.urls')),
-        )
+    ]
 
 
 
