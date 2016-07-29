@@ -7,7 +7,7 @@ from django.db import IntegrityError
 
 
 class LastSeenData(models.Model):
-    user = models.OneToOneField(User, db_index=True)
+    user = models.OneToOneField(User, db_index=True, on_delete=models.CASCADE)
     last_seen = models.DateTimeField(auto_now=True, db_index=True,
                                      editable=False,
                                      help_text="Last date this user was active.")
@@ -56,7 +56,7 @@ class DailyActivityRecordManager(models.Manager):
 
 
 class DailyActivityRecord(models.Model):
-    user = models.ForeignKey(User, db_index=True)
+    user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
     when = models.DateField(auto_now=True, db_index=True,
                             editable=False,
                             help_text="When this user was active.")
