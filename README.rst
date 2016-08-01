@@ -18,7 +18,7 @@ With some minor configuration, it will track:
 Requirements
 ============
 
-- Django_ >= 1.4
+- Django_ >= 1.9
 - statsd_ == 1.0 (StatsD client; `GitHub <https://github.com/jsocol/pystatsd>`)
 - `Graphite server`_ (docs_)
 - `Statsd server`_ (`blog post`_)
@@ -45,16 +45,15 @@ Alternately, clone `the git repository`_ and execute `python setup.py install` w
 Configuration
 =============
 
-In your Django settings:
-
-- Add ``zesty_metrics`` to the ``INSTALLED_APPS``
-- Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
-- Set the following, as needed:
-  - ``STATSD_HOST``, default ``localhost``
-  - ``STATSD_PORT``, default ``8125``
-  - ``STATSD_PREFIX``, default ``None``
-  - ``ZESTY_TRACKING_CLASSES``, default ``('zesty_metrics.tracking.UserAccounts',)``
-- Run ``syncdb`` (or ``migrate`` if you use South).
+- In your Django settings:
+  - Add ``zesty_metrics.apps.ZestyMetricsConfig`` to the ``INSTALLED_APPS``
+  - Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
+  - Set the following, as needed:
+    - ``STATSD_HOST``, default ``localhost``
+    - ``STATSD_PORT``, default ``8125``
+    - ``STATSD_PREFIX``, default ``None``
+    - ``ZESTY_TRACKING_CLASSES``, default ``['zesty_metrics.tracking.UserAccounts']``
+- Run ``manage.py migrate``.
 
 Set up a cron job to run the ``report_metrics`` django-admin.py
 command regularly. At least once a day, but you can update it as often
@@ -64,10 +63,9 @@ configure in ``ZESTY_TRACKING_CLASSES``.
 If you want to send metrics from the client-side, hook up the default URLs in
 your ``urls.py``::
 
-    urlpatterns = patterns(
-        '',
+    urlpatterns = [
         url(r'^metrics/', include('zesty_metrics.urls')),
-        )
+    ]
 
 
 
@@ -82,6 +80,9 @@ Lots of ideas were taken from `django-statsd`_ and `django-munin`_.
 
 CHANGELOG
 =========
+
+- 0.4:
+  - added support for Django-native migrations and other updates for Django 1.9+ compatibility.
 
 - 0.3.1:
   - Added missing migrations and management commands.

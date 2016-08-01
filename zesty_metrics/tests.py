@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime as dt
 
-from django.utils import unittest
+import unittest
 from django.test.client import Client
 
 from django.core.cache import cache
@@ -376,7 +376,7 @@ class ReportMetricsCommandTests(unittest.TestCase):
 
         pipeline_p = 'zesty_metrics.management.commands.report_metrics.Command.pipeline'
         with patch(pipeline_p) as patched:
-            reporter.handle_noargs()
+            reporter.handle()
 
             patched.gauge.assert_has_calls([
                 call(
