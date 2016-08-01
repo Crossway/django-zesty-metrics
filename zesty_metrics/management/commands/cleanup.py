@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-from argparse import add_argument
 
 from django.core.management.base import BaseCommand
 from django.core import exceptions
