@@ -46,7 +46,7 @@ Configuration
 =============
 
 - In your Django settings:
-  - Add ``zesty_metrics`` to the ``INSTALLED_APPS``
+  - Add ``zesty_metrics.apps.ZestyMetricsConfig`` to the ``INSTALLED_APPS``
   - Add ``zesty_metrics.middleware.MetricsMiddleware`` to ``MIDDLEWARE_CLASSES``
   - Set the following, as needed:
     - ``STATSD_HOST``, default ``localhost``
