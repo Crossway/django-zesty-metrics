@@ -7,6 +7,7 @@ from hashlib import md5
 
 from django.core.cache import cache
 from django.db import IntegrityError
+from django.utils.deprecation import MiddlewareMixin
 
 from user_agents import parse as parse_ua
 import statsd
@@ -52,7 +53,7 @@ class LocalStatsd(threading.local):
             self.pipeline = client
 
 
-class MetricsMiddleware(object):
+class MetricsMiddleware(MiddlewareMixin):
     """Middleware to capture basic metrics about a request.
 
     Includes:
