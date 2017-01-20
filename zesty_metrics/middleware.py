@@ -10,7 +10,7 @@ from django.db import IntegrityError
 try:
     from django.utils.deprecation import MiddlewareMixin
 except ImportError:
-    class MiddlewareMixin:
+    class MiddlewareMixin(object):
         pass
 
 from user_agents import parse as parse_ua
