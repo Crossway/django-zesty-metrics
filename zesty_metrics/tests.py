@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-import datetime as dt
+from datetime import date, timedelta
 
-import unittest
 from django.test.client import Client
+from django.test import TestCase
 
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
 from mock import Mock, patch, call
+
+import six
 
 import statsd
 from user_agents import parse as parse_ua
@@ -18,32 +20,23 @@ from zesty_metrics import models
 from zesty_metrics.management.commands import cleanup
 from zesty_metrics.management.commands import report_metrics
 
+TOMORROW = date.today() + timedelta(days=1)
 
-real_date = dt.date
 
-
-class FakeTomorrowDate(dt.date):
-    today = dt.date.today()
-    tomorrow = today + dt.timedelta(days=1)
-
-    "Mock out the today method, but return a real date instance."
-    def __new__(cls, *args, **kwargs):
-        return real_date.__new__(real_date, *args, **kwargs)
-
-    class FakeTomorrowDateType(type):
-        "Used to ensure the FakeTomorrowDate returns True to function calls."
+def patch_today(todays_date):
+    class FakeDateType(type):
         def __instancecheck__(self, instance):
-            return isinstance(instance, real_date)
+            return isinstance(instance, date)
 
-    # this forces the FakeTomorrowDate to return True to the isinstance date check
-    __metaclass__ = FakeTomorrowDateType
+    class FakeDate(six.with_metaclass(FakeDateType, date)):
+        @classmethod
+        def today(cls):
+            return todays_date
 
-    @classmethod
-    def today(cls):
-        return cls.tomorrow
+    return patch('datetime.date', FakeDate)
 
 
-class ClientTestCase(unittest.TestCase):
+class ClientTestCase(TestCase):
     def setUp(self):
         self.username = 'fred'
         self.password = 's3kr1t'
@@ -54,10 +47,6 @@ class ClientTestCase(unittest.TestCase):
         self.client.login(username=self.username, password=self.password)
         self.unauthed_client = Client()
         super(ClientTestCase, self).setUp()
-
-    def tearDown(self):
-        self.user.delete()
-        super(ClientTestCase, self).tearDown()
 
 
 class ActivityTests(ClientTestCase):
@@ -93,7 +82,7 @@ class ActivityTests(ClientTestCase):
         activity = models.DailyActivityRecord.objects.all()
         self.assertEqual(activity.count(), 1)
         # Event 2
-        with patch('datetime.date', FakeTomorrowDate):
+        with patch_today(TOMORROW):
             response = self.client.get('/metrics/activity/foo/')
             self.assertEqual(response.status_code, 200)
 
@@ -103,7 +92,7 @@ class ActivityTests(ClientTestCase):
     def test_POST_should_return_an_empty_204(self):
         response = self.client.post('/metrics/activity/foo/')
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
     def test_POST_should_store_activity(self):
         response = self.client.post('/metrics/activity/foo/')
@@ -114,7 +103,7 @@ class ActivityTests(ClientTestCase):
         event = activity[0]
         self.assertEqual(event.user, self.user)
         self.assertEqual(event.what, 'foo')
-        self.assertEqual(event.when, dt.date.today())
+        self.assertEqual(event.when, date.today())
 
     def test_subsequent_POST_should_NOT_store_activity_on_the_same_day(self):
         # Event 1
@@ -129,15 +118,13 @@ class ActivityTests(ClientTestCase):
         self.assertEqual(activity.count(), 1)
 
     def test_subsequent_POST_should_store_activity_on_a_new_day(self):
-        today = dt.date.today()
-        tomorrow = today + dt.timedelta(days=1)
         # Event 1
         response = self.client.post('/metrics/activity/foo/')
         self.assertEqual(response.status_code, 204)
         activity = models.DailyActivityRecord.objects.all()
         self.assertEqual(activity.count(), 1)
         # Event 2
-        with patch('datetime.date', FakeTomorrowDate):
+        with patch_today(TOMORROW):
             response = self.client.post('/metrics/activity/foo/')
             self.assertEqual(response.status_code, 204)
 
@@ -153,7 +140,6 @@ class MockedStatsdTestCase(ClientTestCase):
         self.original_StatsClient = statsd.StatsClient
         statsd.StatsClient = lambda *a, **k: self.patched_StatsClient
         super(MockedStatsdTestCase, self).setUp()
-
 
     def tearDown(self):
         middleware.MetricsMiddleware.scope.pipeline = self.original_pipeline
@@ -201,7 +187,7 @@ class IncrViewTests(MockedStatsdTestCase):
     def test_POST_should_return_an_empty_204(self):
         response = self.client.post(self.get_url(), data=self.required_data)
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
     def test_POST_should_send_a_stat(self):
         response = self.client.post(self.get_url(), data=self.required_data)
@@ -225,12 +211,6 @@ class IncrViewTests(MockedStatsdTestCase):
             **data
         )
 
-class DecrViewTests(IncrViewTests):
-    method = 'decr'
-    stat_name = 'foo'
-    default_data = {'count': 1, 'rate': 1.0}
-    optional_data = {'count': 2, 'rate': 2.0}
-
 
 class DecrViewTests(IncrViewTests):
     method = 'decr'
@@ -253,15 +233,6 @@ class GaugeViewTests(IncrViewTests):
     default_data = {'delta': False}
     required_data = {'value': 1}
     optional_data = {'delta': True}
-
-
-
-class TimingViewTests(IncrViewTests):
-    method = 'timing'
-    stat_name = 'foo'
-    default_data = {}
-    required_data = {'delta': 1}
-    optional_data = required_data
 
 
 CHROME_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
@@ -294,8 +265,7 @@ class ReportRequestRenderedViewTests(MockedStatsdTestCase):
         self.assertEqual(response.content, views.TRANSPARENT_1X1_PNG)
 
     def test_GET_should_send_a_stat(self):
-        with patch('time.time') as time:
-            time.return_value = 5500
+        with patch('time.time', return_value=5500):
             response = self.client.get(self.get_url(), data=self.required_data)
         self.assertEqual(response.status_code, 200)
         handler = getattr(self.patched_StatsClient, self.method)
@@ -317,11 +287,10 @@ class ReportRequestRenderedViewTests(MockedStatsdTestCase):
     def test_POST_should_return_an_empty_204(self):
         response = self.client.post(self.get_url(), data=self.required_data)
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
     def test_POST_should_send_a_stat(self):
-        with patch('time.time') as time:
-            time.return_value = 5500
+        with patch('time.time', return_value=5500):
             response = self.client.post(self.get_url(), data=self.required_data)
         self.assertEqual(response.status_code, 204)
         handler = getattr(self.patched_StatsClient, self.method)
@@ -346,15 +315,13 @@ class ReportRequestRenderedViewTests(MockedStatsdTestCase):
 class CleanupCommandTests(ClientTestCase):
     def setUp(self):
         super(CleanupCommandTests, self).setUp()
-        old_tomorrow = FakeTomorrowDate.tomorrow
-        for days in xrange(0, 91, 10):
-            with patch('datetime.date', FakeTomorrowDate):
-                FakeTomorrowDate.tomorrow = dt.date.today() - dt.timedelta(days=days)
+        for days in range(1, 99, 10):
+            fake_today = date.today() - timedelta(days=days)
+            with patch_today(fake_today):
                 models.DailyActivityRecord.objects.create(
                     what = 'foo',
                     user = self.user,
                 )
-        FakeTomorrowDate.tomorrow = old_tomorrow
 
     def tearDown(self):
         super(CleanupCommandTests, self).tearDown()
@@ -370,7 +337,7 @@ class CleanupCommandTests(ClientTestCase):
         self.assertEqual(activities.count(), 3)
 
 
-class ReportMetricsCommandTests(unittest.TestCase):
+class ReportMetricsCommandTests(TestCase):
     def test_it_should_report_metrics_from_the_configured_test_tracker(self):
         reporter = report_metrics.Command()
 
