@@ -4,6 +4,7 @@ import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+from django.db import transaction
 
 
 class LastSeenData(models.Model):
@@ -47,11 +48,12 @@ class LastSeenData(models.Model):
 class DailyActivityRecordManager(models.Manager):
     def record_activity(self, who, what):
         try:
-            self.create(
-                what = what,
-                user = who,
-            )
-        except IntegrityError as e:
+            with transaction.atomic():
+                self.create(
+                    what = what,
+                    user = who,
+                )
+        except IntegrityError:
             pass
 
 
