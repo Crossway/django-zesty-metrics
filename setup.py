@@ -6,7 +6,7 @@ if os.path.isfile('README.rst'):
 else:
     long_description = ''
 
-version = '0.4.1'
+version = '0.5'
 
 setup(
     name='django-zesty-metrics',
