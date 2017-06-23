@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def _track(self, tracker, kind, func):
         """Track items on a tracker. Internal helper method.
         """
-        for attr, name in getattr(tracker, kind, {}).iteritems():
+        for attr, name in getattr(tracker, kind, {}).items():
             try:
                 value = getattr(tracker, attr)
                 if callable(value):
@@ -48,7 +48,7 @@ class Command(BaseCommand):
             raise exceptions.ImproperlyConfigured('%s isn\'t a tracker module' % path)
         try:
             mod = import_module(module)
-        except ImportError, e:
+        except ImportError as e:
             raise exceptions.ImproperlyConfigured('Error importing tracker %s: "%s"' % (module, e))
         try:
             klass = getattr(mod, classname)
