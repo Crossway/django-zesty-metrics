@@ -36,3 +36,4 @@ federation.sublime-workspace
 dist/
 .coverage
 pip-selfcheck.json
+.tox
