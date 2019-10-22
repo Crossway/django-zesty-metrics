@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
     install_requires=[
         'Django>=1.9',
-        'pyyaml==3.11',
+        'pyyaml==5.1',
         'six',
         'statsd==2.1.2',
         'ua-parser==0.3.5',
